@@ -22,121 +22,129 @@
 </head>
 <body>
   <canvas id="snakeCanvas" width="400" height="400"></canvas>
+  <img id="foodSprite" alt="Food Sprite" style="display: none;"> <!-- hidden image element for loading random food sprites -->
   <script>
-    const canvas = document.getElementById("snakeCanvas");
-    const ctx = canvas.getContext("2d");
+    window.addEventListener('load', (event) => {
+      const canvas = document.getElementById("snakeCanvas");
+      const ctx = canvas.getContext("2d");
 
-    let snake = [{ x: 10, y: 10 }];
-    let direction = "right";
-    let food = { x: 15, y: 10 }; // Initial food position
-    const gridSize = 20;
-    const speed = 200;
-    let ateFood = false;
+      let snake = [{ x: 10, y: 10 }];
+      let direction = "right";
+      const gridSize = 20;
+      let food = getRandomPosition(); // Initial food position with a random sprite
+      const speed = 200;
+      let ateFood = false;
 
-    function gameLoop() {
-      moveSnake();
-      checkCollision();
-      checkFood();
-      draw();
-    }
-
-    function moveSnake() {
-      let head = { ...snake[0] };
-
-      switch (direction) {
-        case "up":
-          head.y -= 1;
-          break;
-        case "down":
-          head.y += 1;
-          break;
-        case "left":
-          head.x -= 1;
-          break;
-        case "right":
-          head.x += 1;
-          break;
+      function gameLoop() {
+        moveSnake();
+        checkCollision();
+        checkFood();
+        draw();
       }
 
-      snake.unshift(head);
+      function moveSnake() {
+        let head = { ...snake[0] };
 
-      if (!ateFood) {
-        snake.pop();
+        switch (direction) {
+          case "up":
+            head.y -= 1;
+            break;
+          case "down":
+            head.y += 1;
+            break;
+          case "left":
+            head.x -= 1;
+            break;
+          case "right":
+            head.x += 1;
+            break;
+        }
+
+        snake.unshift(head);
+
+        if (!ateFood) {
+          snake.pop();
+        }
+
+        ateFood = false;
       }
 
-      ateFood = false;
-    }
+      function checkCollision() {
+        let head = snake[0];
 
-    function checkCollision() {
-      let head = snake[0];
-
-      if (head.x < 0 || head.x >= canvas.width / gridSize || head.y < 0 || head.y >= canvas.height / gridSize) {
-        resetGame();
-      }
-
-      for (let i = 1; i < snake.length; i++) {
-        if (head.x === snake[i].x && head.y === snake[i].y) {
+        if (head.x < 0 || head.x >= canvas.width / gridSize || head.y < 0 || head.y >= canvas.height / gridSize) {
           resetGame();
         }
+
+        for (let i = 1; i < snake.length; i++) {
+          if (head.x === snake[i].x && head.y === snake[i].y) {
+            resetGame();
+          }
+        }
       }
-    }
 
-    function checkFood() {
-      let head = snake[0];
+      function checkFood() {
+        let head = snake[0];
 
-      if (head.x === food.x && head.y === food.y) {
-        ateFood = true;
+        if (head.x === food.x && head.y === food.y) {
+          ateFood = true;
+          food = getRandomPosition();
+        }
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        snake.forEach((segment, index) => {
+          const gradient = ctx.createLinearGradient(segment.x * gridSize, segment.y * gridSize, (segment.x + 1) * gridSize, (segment.y + 1) * gridSize);
+          gradient.addColorStop(0, "#00f"); // Start color
+          gradient.addColorStop(1, "#0f0"); // End color
+
+          ctx.fillStyle = gradient;
+          ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
+        });
+
+        const foodSprite = document.getElementById("foodSprite");
+        foodSprite.src = food.sprite; // Set the source attribute of the hidden image element to the randomly chosen food sprite
+        ctx.drawImage(foodSprite, food.x * gridSize, food.y * gridSize, gridSize, gridSize);
+      }
+
+      function getRandomPosition() {
+        const randomSpriteNumber = Math.floor(Math.random() * 40) + 1; // Assuming sprite filenames are numbered from 1 to 40
+        const spritePath = `assets/sprites/free-monster-2d-game-objects/PNG/foodSprite${randomSpriteNumber}.png`;
+
+        return {
+          x: Math.floor(Math.random() * (canvas.width / gridSize)),
+          y: Math.floor(Math.random() * (canvas.height / gridSize)),
+          sprite: spritePath,
+        };
+      }
+
+      function resetGame() {
+        snake = [{ x: 10, y: 10 }];
+        direction = "right";
         food = getRandomPosition();
       }
-    }
 
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      snake.forEach((segment, index) => {
-        const gradient = ctx.createLinearGradient(segment.x * gridSize, segment.y * gridSize, (segment.x + 1) * gridSize, (segment.y + 1) * gridSize);
-        gradient.addColorStop(0, "#00f"); // Start color
-        gradient.addColorStop(1, "#0f0"); // End color
-
-        ctx.fillStyle = gradient;
-        ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
+      window.addEventListener("keydown", (event) => {
+        switch (event.key) {
+          case "ArrowUp":
+            direction = "up";
+            break;
+          case "ArrowDown":
+            direction = "down";
+            break;
+          case "ArrowLeft":
+            direction = "left";
+            break;
+          case "ArrowRight":
+            direction = "right";
+            break;
+        }
       });
 
-      ctx.fillStyle = "#f00";
-      ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
-    }
-
-    function getRandomPosition() {
-      return {
-        x: Math.floor(Math.random() * (canvas.width / gridSize)),
-        y: Math.floor(Math.random() * (canvas.height / gridSize))
-      };
-    }
-
-    function resetGame() {
-      snake = [{ x: 10, y: 10 }];
-      direction = "right";
-      food = getRandomPosition();
-    }
-
-    window.addEventListener("keydown", (event) => {
-      switch (event.key) {
-        case "ArrowUp":
-          direction = "up";
-          break;
-        case "ArrowDown":
-          direction = "down";
-          break;
-        case "ArrowLeft":
-          direction = "left";
-          break;
-        case "ArrowRight":
-          direction = "right";
-          break;
-      }
+      setInterval(gameLoop, speed);
     });
-
-    setInterval(gameLoop, speed);
   </script>
 </body>
 </html>
