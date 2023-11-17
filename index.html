@@ -86,7 +86,8 @@
       function checkFood() {
         let head = snake[0];
 
-        if (head.x === food.x && head.y === food.y) {
+        // Check if the head's coordinates are within the bounds of the food's 2x2 grid
+        if (head.x >= food.x && head.x < food.x + 2 && head.y >= food.y && head.y < food.y + 2) {
           ateFood = true;
           food = getRandomPosition();
         }
@@ -106,7 +107,7 @@
 
         const foodSprite = document.getElementById("foodSprite");
         foodSprite.src = food.sprite; // Set the source attribute of the hidden image element to the randomly chosen food sprite
-        ctx.drawImage(foodSprite, food.x * gridSize, food.y * gridSize, gridSize, gridSize);
+        ctx.drawImage(foodSprite, food.x * gridSize, food.y * gridSize, gridSize * 2, gridSize * 2);
       }
 
       function getRandomPosition() {
@@ -114,8 +115,8 @@
         const spritePath = `assets/sprites/free-monster-2d-game-objects/PNG/foodSprite${randomSpriteNumber}.png`;
 
         return {
-          x: Math.floor(Math.random() * (canvas.width / gridSize)),
-          y: Math.floor(Math.random() * (canvas.height / gridSize)),
+          x: Math.floor(Math.random() * (canvas.width / gridSize - 1)),
+          y: Math.floor(Math.random() * (canvas.height / gridSize - 1)),
           sprite: spritePath,
         };
       }
