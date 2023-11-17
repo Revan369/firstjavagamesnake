@@ -10,14 +10,12 @@
       align-items: center;
       height: 100vh;
       margin: 0;
-      background-color: rgb(82, 195, 11);
+      background-color: rgb(48, 91, 22);
     }
-
-     
-     
 
     canvas {
       border: 10px solid #c70808;
+      background-color: rgb(82, 195, 11);
     }
   </style>
   <title>Snake Game</title>
@@ -95,8 +93,12 @@
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      ctx.fillStyle = "#00f";
-      snake.forEach(segment => {
+      snake.forEach((segment, index) => {
+        const gradient = ctx.createLinearGradient(segment.x * gridSize, segment.y * gridSize, (segment.x + 1) * gridSize, (segment.y + 1) * gridSize);
+        gradient.addColorStop(0, "#00f"); // Start color
+        gradient.addColorStop(1, "#0f0"); // End color
+
+        ctx.fillStyle = gradient;
         ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
       });
 
